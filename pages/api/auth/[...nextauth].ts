@@ -18,7 +18,6 @@ export const authOptions: NextAuthOptions = {
           scope: "data:read,data:read_write,data:delete,project:delete"
         }
       },
-      /*
       userinfo: {
         request: async ({ tokens }) => {
           const authToken = tokens.access_token;
@@ -36,8 +35,7 @@ export const authOptions: NextAuthOptions = {
           const { user: profile } = await rest.json()
           return profile
         },
-      }
-      */
+      },
       profile(profile) {
         console.log("profile", profile.token)
         return {
