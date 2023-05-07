@@ -20,11 +20,12 @@ export const authOptions: NextAuthOptions = {
       },
       userinfo: {
         request: async ({ tokens }) => {
-          const authToken = tokens.access_token;
-          console.log("authToken", authToken)
-          const rest = await fetch("https://todoist.com/sync/v9/sync", {
+          const { access_token: authorisationToken } = tokens;
+          //console.log("authorisationToken", authorisationToken)
+
+          const res = await fetch("https://todoist.com/sync/v9/sync", {
             headers: {
-              "Authorization": `Bearer ${authToken}`,
+              "Authorization": `Bearer ${authorisationToken}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
@@ -32,19 +33,42 @@ export const authOptions: NextAuthOptions = {
               "resource_types": ["user"],
             })
           })
-          const { user: profile } = await rest.json()
+
+          const { user } = await res.json()
+          // console.log("user", user)
+
+          const profile = {
+            "authorisationToken": authorisationToken,
+            "user": user
+          }
+          // console.log("profile", profile)
+
           return profile
         },
       },
       profile(profile) {
-        console.log("profile", profile.token)
-        return {
-          id: profile.id,
-          name: profile.display_name,
-          email: profile.email,
-          image: profile.avatar_url,
-          token: profile.token
+        const { user, authorisationToken } = profile;
+        console.log("token (PROFILE)", authorisationToken)
+        console.log("token  (USER.TOKEN)", user.token)
+
+        const profile2 = {
+          id: user.id,
+          name: user.full_name,
+          email: user.email,
+          image: user.avatar_big,
+          token: user.token,
+          inbox_project_id: user.inbox_project_id,
+          is_premium: user.is_premium,
+          joined_at: user.joined_at,
+          lang: user.lang,
+          premium_status: user.premium_status,
+          start_day: user.start_day,
+          start_page: user.start_page,
+          team_inbox_id: user.team_inbox_id,
+          verification_status: user.verification_status,
         }
+
+        return profile
       }
     }),
   ],
